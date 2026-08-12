@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wooji.mapper.MemberMapper">
+
+    <insert id="insertMember" parameterType="map">
+        INSERT INTO collection_members (
+            collection_id
+        ,   user_id
+        ,   role
+        ) VALUES (
+            #{collectionId}
+        ,   #{userId}
+        ,   #{role}
+        )
+        ON DUPLICATE KEY UPDATE role = role
+    </insert>
+
+    <update id="updateMemberRole" parameterType="map">
+        UPDATE  collection_members
+        SET     role = #{role}
+        WHERE   collection_id = #{collectionId}
+        AND     user_id = #{userId}
+    </update>
+
+    <delete id="deleteMember">
+        DELETE FROM collection_members
+        WHERE       collection_id = #{collectionId}
+        AND         user_id = #{userId}
+    </delete>
+
+    <select id="selectMembers" parameterType="long" resultType="map">
+        SELECT  m.collection_id
+        ,       m.user_id
+        ,       m.role
+        ,       m.created_at
+        ,       u.email
+        ,       u.nickname
+        ,       u.profile_image
+        FROM    collection_members m
+        JOIN    users u ON u.user_id = m.user_id
+        WHERE   m.collection_id = #{collectionId}
+        ORDER BY FIELD(m.role, 'OWNER', 'EDITOR', 'VIEWER'), m.created_at
+    </select>
+
+    <select id="selectRole" resultType="string">
+        SELECT  role
+        FROM    collection_members
+        WHERE   collection_id = #{collectionId}
+        AND     user_id = #{userId}
+    </select>
+
+</mapper>

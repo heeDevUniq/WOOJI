@@ -33,7 +33,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /** 회원가입 */
+    /* 회원가입 */
     @Transactional
     public Map<String, Object> signup(Map<String, Object> param) {
         String email = (String) param.get("email");
@@ -57,12 +57,12 @@ public class UserService {
         return result;
     }
 
-    /** 이메일 중복 확인 */
+    /* 이메일 중복 확인 */
     public boolean isEmailAvailable(String email) {
         return userMapper.countByEmail(email) == 0;
     }
 
-    /** 로그인 - Access/Refresh Token 발급 */
+    /* 로그인 - Access/Refresh Token 발급 */
     @Transactional
     public Map<String, Object> login(Map<String, Object> param) {
         String email = (String) param.get("email");
@@ -93,7 +93,7 @@ public class UserService {
         return result;
     }
 
-    /** 로그아웃 - Refresh Token 폐기 */
+    /* 로그아웃 - Refresh Token 폐기 */
     @Transactional
     public void logout(String refreshToken) {
         if (refreshToken != null) {
@@ -101,7 +101,7 @@ public class UserService {
         }
     }
 
-    /** Access Token 재발급 */
+    /* Access Token 재발급 */
     @Transactional
     public Map<String, Object> refresh(Map<String, Object> param) {
         String refreshToken = (String) param.get("refreshToken");
@@ -126,7 +126,7 @@ public class UserService {
         return result;
     }
 
-    /** 내 정보 */
+    /* 내 정보 */
     public Map<String, Object> getMe(Long userId) {
         Map<String, Object> user = userMapper.selectUserById(userId);
         if (user == null) {
@@ -135,7 +135,7 @@ public class UserService {
         return user;
     }
 
-    /** 비밀번호 변경 */
+    /* 비밀번호 변경 */
     @Transactional
     public void changePassword(Long userId, Map<String, Object> param) {
         String currentPassword = (String) param.get("currentPassword");
@@ -153,14 +153,14 @@ public class UserService {
         userMapper.updatePassword(updateParam);
     }
 
-    /** 프로필(닉네임) 수정 */
+    /* 프로필(닉네임) 수정 */
     @Transactional
     public void updateProfile(Long userId, Map<String, Object> param) {
         param.put("userId", userId);
         userMapper.updateProfile(param);
     }
 
-    /** 프로필 이미지 변경 */
+    /* 프로필 이미지 변경 */
     @Transactional
     public Map<String, Object> updateProfileImage(Long userId, MultipartFile file) {
         String savedPath = saveFile(file, "profile");
@@ -175,14 +175,14 @@ public class UserService {
         return result;
     }
 
-    /** 회원 탈퇴 (soft delete + refresh token 폐기) */
+    /* 회원 탈퇴 (soft delete + refresh token 폐기) */
     @Transactional
     public void withdraw(Long userId) {
         userMapper.deleteRefreshTokenByUser(userId);
         userMapper.deleteUser(userId);
     }
 
-    /** 파일 저장 후 웹 경로 반환 */
+    /* 파일 저장 후 웹 경로 반환 */
     public String saveFile(MultipartFile file, String subDir) {
         if (file == null || file.isEmpty()) {
             throw new ApiException(400, "파일이 없습니다.");
