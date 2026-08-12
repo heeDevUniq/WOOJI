@@ -96,4 +96,5 @@ public class AuthController {
         userService.withdraw(userId(request));
         return Res.ok();
     }
+    
 }

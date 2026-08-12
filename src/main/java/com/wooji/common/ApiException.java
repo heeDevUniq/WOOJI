@@ -12,4 +12,5 @@ public class ApiException extends RuntimeException {
     public int getStatus() {
         return status;
     }
+    
 }

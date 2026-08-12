@@ -3,7 +3,7 @@ package com.wooji.common;
 import java.util.HashMap;
 import java.util.Map;
 
-/** 공통 응답 포맷: { success, message, data } */
+/* 공통 응답 포맷: { success, message, data } */
 public class Res {
 
     public static Map<String, Object> ok() {
@@ -23,4 +23,5 @@ public class Res {
         res.put("message", message);
         return res;
     }
+
 }

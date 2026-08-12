@@ -41,7 +41,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    /** 토큰 검증 및 파싱. 유효하지 않으면 ApiException(401) */
+    /* 토큰 검증 및 파싱. 유효하지 않으면 ApiException(401) */
     public Claims parse(String token) {
         try {
             return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
@@ -59,4 +59,5 @@ public class JwtUtil {
     public long getRefreshValidityMs() {
         return refreshValidityMs;
     }
+    
 }

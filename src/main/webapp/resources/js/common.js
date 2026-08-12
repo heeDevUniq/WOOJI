@@ -37,7 +37,7 @@ var wooji = (function ($) {
         location.href = '/login';
     }
 
-    /** 로그인 필수 페이지 가드. 미로그인이면 리다이렉트 후 false 반환 - 호출부에서 return 할 것 */
+    /* 로그인 필수 페이지 가드, 미로그인이면 리다이렉트 후 false 반환 - 호출부에서 return 할 것 */
     function requireLogin() {
         if (!getAccessToken()) {
             goLogin();
@@ -95,7 +95,7 @@ var wooji = (function ($) {
         $.ajax(settings);
     }
 
-    /** Access Token 재발급 후 원 요청 재시도 */
+    /* Access Token 재발급 후 원 요청 재시도 */
     function refreshAndRetry(originalOptions) {
         $.ajax({
             url: '/api/auth/refresh',

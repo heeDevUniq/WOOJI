@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-/** JSP 페이지 라우팅 (인증 검사는 각 페이지 JS에서 토큰 유무로 처리) */
+/* JSP 페이지 라우팅 (인증 검사는 각 페이지 JS에서 토큰 유무로 처리) */
 @Controller
 public class PageController {
 
@@ -51,4 +51,5 @@ public class PageController {
     public String mypage() {
         return "mypage";
     }
+    
 }

@@ -22,12 +22,12 @@ public class PermissionChecker {
         this.collectionMapper = collectionMapper;
     }
 
-    /** role 조회 (멤버 아니면 null) */
+    /* role 조회 (멤버 아니면 null) */
     public String getRole(Long collectionId, Long userId) {
         return memberMapper.selectRole(collectionId, userId);
     }
 
-    /** 멤버이거나 공개 컬렉션인지 - 조회 권한 */
+    /* 멤버이거나 공개 컬렉션인지 - 조회 권한 */
     public void checkViewer(Long collectionId, Long userId) {
         if (getRole(collectionId, userId) != null) {
             return;
@@ -38,7 +38,7 @@ public class PermissionChecker {
         }
     }
 
-    /** EDITOR 이상인지 - 장소 추가/수정/삭제 권한 */
+    /* EDITOR 이상인지 - 장소 추가/수정/삭제 권한 */
     public void checkEditor(Long collectionId, Long userId) {
         String role = getRole(collectionId, userId);
         if (!"OWNER".equals(role) && !"EDITOR".equals(role)) {
@@ -46,10 +46,11 @@ public class PermissionChecker {
         }
     }
 
-    /** OWNER인지 - 컬렉션 수정/삭제/공유/권한관리 */
+    /* OWNER인지 - 컬렉션 수정/삭제/공유/권한관리 */
     public void checkOwner(Long collectionId, Long userId) {
         if (!"OWNER".equals(getRole(collectionId, userId))) {
             throw new ApiException(403, "소유자만 가능합니다.");
         }
     }
+
 }

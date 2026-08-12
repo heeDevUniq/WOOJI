@@ -23,4 +23,5 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception", e);
         return ResponseEntity.status(500).body(Res.error("서버 오류가 발생했습니다."));
     }
+    
 }

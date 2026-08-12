@@ -202,4 +202,5 @@ public class UserService {
             throw new ApiException(500, "파일 저장에 실패했습니다.");
         }
     }
+    
 }
