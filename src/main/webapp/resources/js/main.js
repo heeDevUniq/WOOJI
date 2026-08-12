@@ -18,24 +18,35 @@ $(function () {
 
     emojiPicker.attach('#colEmoji');
 
-    // 지도
-    var map = new ol.Map({
-        target: 'map',
-        layers: [new ol.layer.Tile({ source: new ol.source.OSM() })],
-        view: new ol.View({
-            center: ol.proj.fromLonLat([126.9780, 37.5665]),   // 서울시청
-            zoom: 12
-        })
+    // 모바일: 햄버거로 사이드패널 토글
+    $('#btnPanel').on('click', function () {
+        var open = !$('.side-panel').hasClass('open');
+        $('.side-panel').toggleClass('open', open);
+        $('#panelBackdrop').toggleClass('show', open);
+    });
+    $('#panelBackdrop').on('click', function () {
+        $('.side-panel').removeClass('open');
+        $(this).removeClass('show');
     });
 
-    // 현재 위치로 이동 (허용 시, 실패해도 무시)
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (pos) {
-            map.getView().animate({
-                center: ol.proj.fromLonLat([pos.coords.longitude, pos.coords.latitude]),
-                zoom: 14, duration: 500
-            });
-        }, function () { /* 거부/실패 시 기본 위치 유지 */ });
+    // 지도 (카카오)
+    var mapAvailable = (typeof kakao !== 'undefined') && kakao.maps && kakao.maps.Map;
+    if (mapAvailable) {
+        var map = new kakao.maps.Map(document.getElementById('map'), {
+            center: new kakao.maps.LatLng(37.5665, 126.9780),   // 서울시청
+            level: 8
+        });
+
+        // 현재 위치로 이동 (허용 시, 실패해도 무시)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                map.setLevel(5);
+                map.panTo(new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+            }, function () { /* 거부/실패 시 기본 위치 유지 */ });
+        }
+    } else {
+        $('#map').html('<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#888; font-size:14px; text-align:center;">'
+            + '카카오 지도를 불러올 수 없습니다.<br>application.yml 의 kakao.map.js-key 설정을 확인해주세요.</div>');
     }
 
     // 목록

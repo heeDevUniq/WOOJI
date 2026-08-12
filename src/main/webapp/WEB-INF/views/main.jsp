@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>우지 : 우리들의 지도</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css">
     <link rel="stylesheet" href="/resources/css/wooji.css">
 </head>
 <body>
@@ -24,7 +23,9 @@
             <a href="/signup" class="btn btn-sm btn-primary">회원가입</a>
         </span>
     </div>
+    <button class="btn-menu" id="btnPanel" title="컬렉션 목록">☰</button>
 </div>
+<div class="panel-backdrop" id="panelBackdrop"></div>
 
 <div class="collection-layout">
     <div id="map"></div>
@@ -87,7 +88,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapJsKey}"></script>
 <script src="/resources/js/common.js"></script>
 <script src="/resources/js/emoji-picker.js"></script>
 <script src="/resources/js/main.js"></script>

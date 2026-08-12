@@ -1,5 +1,6 @@
 package com.wooji.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 /** JSP 페이지 라우팅 (인증 검사는 각 페이지 JS에서 토큰 유무로 처리) */
 @Controller
 public class PageController {
+
+    @Value("${kakao.map.js-key:}")
+    private String kakaoMapJsKey;
 
     @GetMapping("/")
     public String index() {
@@ -25,13 +29,15 @@ public class PageController {
     }
 
     @GetMapping("/main")
-    public String main() {
+    public String main(Model model) {
+        model.addAttribute("kakaoMapJsKey", kakaoMapJsKey);
         return "main";
     }
 
     @GetMapping("/collections/{collectionId}")
     public String collection(@PathVariable Long collectionId, Model model) {
         model.addAttribute("collectionId", collectionId);
+        model.addAttribute("kakaoMapJsKey", kakaoMapJsKey);
         return "collection";
     }
 

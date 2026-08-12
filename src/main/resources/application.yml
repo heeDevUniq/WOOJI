@@ -35,6 +35,14 @@ jwt:
 file:
   upload-dir: C:/workspace/WOOJI/upload
 
+kakao:
+  map:
+    # developers.kakao.com > 내 애플리케이션 > 앱 키 > JavaScript 키
+    js-key: "2be1adfa90cd60dc9a18b00909007127"
+  search:
+    # developers.kakao.com > 내 애플리케이션 > 앱 키 > REST API 키 (키워드 장소검색용)
+    rest-api-key: "2cc804b04faf7874944d67f5a061badb"
+
 logging:
   level:
     com.wooji: debug
