@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 26">
+    <!-- 핀 스티커 프레임 (우지 블루) -->
+    <path fill="#3182F6" d="M12 1C6.5 1 2 5.4 2 10.8c0 6.6 8 13.3 9.1 14.2.5.4 1.3.4 1.8 0 1.1-.9 9.1-7.6 9.1-14.2C22 5.4 17.5 1 12 1z"/>
+    <circle cx="12" cy="10.6" r="5.6" fill="#fff"/>
+    <!-- 핀 안에 담기는 이모지 -->
+    <text x="12" y="13.4" font-size="7.5" text-anchor="middle">✈️</text>
+    <!-- 설렘 코랄 도트 -->
+    <circle cx="20.2" cy="3.8" r="3" fill="#FF6B57" stroke="#fff" stroke-width="1.3"/>
+</svg>

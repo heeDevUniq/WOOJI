@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wooji.mapper.CommentMapper">
+
+    <insert id="insertComment" parameterType="map" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO comments (
+            collection_id
+        ,   user_id
+        ,   content
+        ) VALUES (
+            #{collectionId}
+        ,   #{userId}
+        ,   #{content}
+        )
+    </insert>
+
+    <select id="selectComment" parameterType="long" resultType="map">
+        SELECT  *
+        FROM    comments
+        WHERE   comment_id = #{commentId}
+    </select>
+
+    <select id="selectComments" resultType="map">
+        SELECT  cm.comment_id
+        ,       cm.collection_id
+        ,       cm.user_id
+        ,       cm.content
+        ,       cm.created_at
+        ,       cm.updated_at
+        ,       u.nickname
+        ,       u.profile_image
+        ,       (SELECT COUNT(*) FROM comment_likes l WHERE l.comment_id = cm.comment_id) AS like_count
+        ,       (SELECT COUNT(*) FROM comment_likes l
+                  WHERE l.comment_id = cm.comment_id AND l.user_id = #{userId}) AS liked_by_me
+        FROM    comments cm
+        JOIN    users u ON u.user_id = cm.user_id
+        WHERE   cm.collection_id = #{collectionId}
+        ORDER BY cm.created_at DESC
+    </select>
+
+    <update id="updateComment" parameterType="map">
+        UPDATE  comments
+        SET     content = #{content}
+        WHERE   comment_id = #{commentId}
+    </update>
+
+    <delete id="deleteComment" parameterType="long">
+        DELETE FROM comments
+        WHERE       comment_id = #{commentId}
+    </delete>
+
+    <insert id="insertLike">
+        INSERT IGNORE INTO comment_likes (
+            comment_id
+        ,   user_id
+        ) VALUES (
+            #{commentId}
+        ,   #{userId}
+        )
+    </insert>
+
+    <delete id="deleteLike">
+        DELETE FROM comment_likes
+        WHERE       comment_id = #{commentId}
+        AND         user_id = #{userId}
+    </delete>
+
+    <select id="countLike" resultType="int">
+        SELECT  COUNT(*)
+        FROM    comment_likes
+        WHERE   comment_id = #{commentId}
+        AND     user_id = #{userId}
+    </select>
+
+</mapper>

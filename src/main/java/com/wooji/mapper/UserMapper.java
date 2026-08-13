@@ -32,4 +32,5 @@ public interface UserMapper {
     int deleteRefreshToken(@Param("token") String token);
 
     int deleteRefreshTokenByUser(@Param("userId") Long userId);
+    
 }

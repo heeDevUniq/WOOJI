@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wooji.mapper.PlaceMapper">
+
+    <insert id="insertPlace" parameterType="map" useGeneratedKeys="true" keyProperty="placeId">
+        INSERT INTO places (
+            collection_id
+        ,   name
+        ,   address
+        ,   lat
+        ,   lng
+        ,   category
+        ,   tags
+        ,   memo
+        ,   visited_yn
+        ,   rating
+        ,   opening_hours
+        ,   phone
+        ,   website
+        ,   created_by
+        ) VALUES (
+            #{collectionId}
+        ,   #{name}
+        ,   #{address}
+        ,   #{lat}
+        ,   #{lng}
+        ,   #{category}
+        ,   #{tags}
+        ,   #{memo}
+        ,   #{visitedYn}
+        ,   #{rating}
+        ,   #{openingHours}
+        ,   #{phone}
+        ,   #{website}
+        ,   #{createdBy}
+        )
+    </insert>
+
+    <select id="selectPlace" parameterType="long" resultType="map">
+        SELECT  p.*
+        ,       u.nickname AS created_by_nickname
+        FROM    places p
+        JOIN    users u ON u.user_id = p.created_by
+        WHERE   p.place_id = #{placeId}
+    </select>
+
+    <select id="selectPlaces" parameterType="map" resultType="map">
+        SELECT  p.*
+        ,       u.nickname AS created_by_nickname
+        ,       (SELECT COUNT(*) FROM place_photos ph WHERE ph.place_id = p.place_id) AS photo_count
+        FROM    places p
+        JOIN    users u ON u.user_id = p.created_by
+        WHERE   p.collection_id = #{collectionId}
+        <if test="keyword != null and keyword != ''">
+        AND     (p.name LIKE CONCAT('%', #{keyword}, '%')
+                 OR p.address LIKE CONCAT('%', #{keyword}, '%')
+                 OR p.tags LIKE CONCAT('%', #{keyword}, '%')
+                 OR p.memo LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="category != null and category != ''">
+        AND     p.category = #{category}
+        </if>
+        <if test="visitedYn != null and visitedYn != ''">
+        AND     p.visited_yn = #{visitedYn}
+        </if>
+        ORDER BY p.created_at DESC
+    </select>
+
+    <select id="selectPlacesNearby" parameterType="map" resultType="map">
+        SELECT  *
+        FROM    (
+                    SELECT  p.*
+                    ,       (6371000 * ACOS(
+                                COS(RADIANS(#{lat})) * COS(RADIANS(p.lat))
+                                * COS(RADIANS(p.lng) - RADIANS(#{lng}))
+                                + SIN(RADIANS(#{lat})) * SIN(RADIANS(p.lat))
+                            )) AS distance_m
+                    FROM    places p
+                    WHERE   p.collection_id = #{collectionId}
+                ) t
+        WHERE   t.distance_m &lt;= #{radiusM}
+        ORDER BY t.distance_m
+    </select>
+
+    <update id="updatePlace" parameterType="map">
+        UPDATE  places
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="lat != null">lat = #{lat},</if>
+            <if test="lng != null">lng = #{lng},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            <if test="memo != null">memo = #{memo},</if>
+            <if test="visitedYn != null">visited_yn = #{visitedYn},</if>
+            <if test="rating != null">rating = #{rating},</if>
+            <if test="openingHours != null">opening_hours = #{openingHours},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="website != null">website = #{website},</if>
+        </set>
+        WHERE   place_id = #{placeId}
+    </update>
+
+    <delete id="deletePlace" parameterType="long">
+        DELETE FROM places
+        WHERE       place_id = #{placeId}
+    </delete>
+
+    <insert id="copyPlaces">
+        INSERT INTO places (
+            collection_id
+        ,   name
+        ,   address
+        ,   lat
+        ,   lng
+        ,   category
+        ,   tags
+        ,   memo
+        ,   visited_yn
+        ,   rating
+        ,   opening_hours
+        ,   phone
+        ,   website
+        ,   created_by
+        )
+        SELECT  #{toCollectionId}
+        ,       name
+        ,       address
+        ,       lat
+        ,       lng
+        ,       category
+        ,       tags
+        ,       memo
+        ,       'N'
+        ,       rating
+        ,       opening_hours
+        ,       phone
+        ,       website
+        ,       #{userId}
+        FROM    places
+        WHERE   collection_id = #{fromCollectionId}
+    </insert>
+
+    <insert id="insertPhoto" parameterType="map" useGeneratedKeys="true" keyProperty="photoId">
+        INSERT INTO place_photos (
+            place_id
+        ,   file_path
+        ,   original_name
+        ) VALUES (
+            #{placeId}
+        ,   #{filePath}
+        ,   #{originalName}
+        )
+    </insert>
+
+    <select id="selectPhotos" parameterType="long" resultType="map">
+        SELECT  photo_id
+        ,       place_id
+        ,       file_path
+        ,       original_name
+        ,       created_at
+        FROM    place_photos
+        WHERE   place_id = #{placeId}
+        ORDER BY photo_id
+    </select>
+
+    <delete id="deletePhoto" parameterType="long">
+        DELETE FROM place_photos
+        WHERE       photo_id = #{photoId}
+    </delete>
+
+</mapper>
