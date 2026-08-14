@@ -5,61 +5,52 @@
     <meta charset="UTF-8">
     <title>우지 : 우리들의 지도 - 마이페이지</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/resources/css/wooji.css">
+    <link rel="icon" type="image/svg+xml" href="/resources/img/favicon.svg?v=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="/resources/css/wooji.css?v=20260837">
 </head>
 <body>
 <div class="header">
-    <a href="/main" class="logo">🗺️ 우지 <span class="logo-sub">우리들의 지도</span></a>
+    <a href="/main" class="logo-mark">
+        <img class="header-icon" src="/resources/img/favicon.svg?v=1" alt="WOOJI">
+        WOOJI
+    </a>
     <div class="menu">
-        <a href="/main">내 컬렉션</a>
-        <button class="btn btn-sm" id="btnLogout">로그아웃</button>
+        <a href="/main" class="btn btn-sm">내 컬렉션</a>
     </div>
 </div>
 
-<div class="form-box">
-    <h1>마이페이지</h1>
-
-    <div style="text-align:center; margin-bottom:20px;">
-        <img id="profileImg" src="" alt=""
-             style="width:88px; height:88px; border-radius:50%; object-fit:cover; background:#e5e7eb; display:none;">
-        <div id="profileNoImg" style="width:88px; height:88px; border-radius:50%; background:#e5e7eb;
-             display:inline-flex; align-items:center; justify-content:center; font-size:36px;">👤</div>
-        <div style="margin-top:8px;">
-            <input type="file" id="profileFile" accept="image/*" style="display:none;">
-            <button class="btn btn-sm" id="btnProfileImg">프로필 이미지 변경</button>
+<div class="my-box">
+    <!-- 프로필: 사진 클릭으로 변경 -->
+    <div class="my-profile">
+        <div class="my-avatar" id="myAvatar" title="프로필 사진 변경">
+            <span id="myInitial">👤</span>
+            <span class="cam">📷</span>
+        </div>
+        <input type="file" id="profileFile" accept="image/*" style="display:none;">
+        <div class="my-info">
+            <input type="text" id="nickname" placeholder="닉네임">
+            <div class="email" id="email"></div>
         </div>
     </div>
+    <button class="btn btn-primary btn-big" id="btnSaveProfile">저장</button>
 
-    <div class="form-group">
-        <label>이메일</label>
-        <input type="text" id="email" disabled>
+    <!-- 비밀번호 변경 (접기) -->
+    <details class="my-fold">
+        <summary>비밀번호 변경</summary>
+        <div class="form-group"><input type="password" id="currentPassword" placeholder="현재 비밀번호"></div>
+        <div class="form-group"><input type="password" id="newPassword" placeholder="새 비밀번호 (8자 이상)"></div>
+        <button class="btn btn-big" id="btnChangePw">변경하기</button>
+    </details>
+
+    <div class="my-foot">
+        <button class="btn btn-sm" id="btnLogout">로그아웃</button>
+        <button class="link-danger" id="btnWithdraw">회원 탈퇴</button>
     </div>
-    <div class="form-group">
-        <label>닉네임</label>
-        <input type="text" id="nickname">
-    </div>
-    <button class="btn btn-primary" id="btnSaveProfile">프로필 저장</button>
-
-    <hr style="margin:24px 0; border:none; border-top:1px solid #eee;">
-
-    <h1 style="font-size:17px;">비밀번호 변경</h1>
-    <div class="form-group">
-        <label>현재 비밀번호</label>
-        <input type="password" id="currentPassword">
-    </div>
-    <div class="form-group">
-        <label>새 비밀번호 (8자 이상)</label>
-        <input type="password" id="newPassword">
-    </div>
-    <button class="btn btn-primary" id="btnChangePw">비밀번호 변경</button>
-
-    <hr style="margin:24px 0; border:none; border-top:1px solid #eee;">
-
-    <button class="btn btn-danger" id="btnWithdraw">회원 탈퇴</button>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="/resources/js/common.js"></script>
+<script src="/resources/js/common.js?v=20260837"></script>
 <script>
 $(function () {
     if (!wooji.requireLogin()) return;
@@ -69,19 +60,22 @@ $(function () {
         wooji.ajax({
             url: '/api/users/me',
             success: function (me) {
-                $('#email').val(me.email);
+                $('#email').text(me.email);
                 $('#nickname').val(me.nickname);
                 if (me.profile_image) {
-                    $('#profileImg').attr('src', me.profile_image).show();
-                    $('#profileNoImg').hide();
+                    $('#myAvatar').css('background-image', 'url(' + me.profile_image + ')');
+                    $('#myInitial').hide();
+                } else {
+                    $('#myAvatar').css('background-image', '');
+                    $('#myInitial').text((me.nickname || '?').charAt(0)).show();
                 }
             }
         });
     }
     loadMe();
 
-    // 프로필 이미지
-    $('#btnProfileImg').on('click', function () { $('#profileFile').click(); });
+    // 아바타 클릭 -> 사진 변경
+    $('#myAvatar').on('click', function () { $('#profileFile').click(); });
     $('#profileFile').on('change', function () {
         var file = this.files[0];
         if (!file) return;
@@ -91,11 +85,16 @@ $(function () {
             url: '/api/users/profile-image',
             method: 'POST',
             formData: fd,
-            success: loadMe
+            success: function (data) {
+                var u = wooji.getUser() || {};
+                u.profileImage = data.profileImage;
+                localStorage.setItem('wooji_user', JSON.stringify(u));
+                loadMe();
+            }
         });
     });
 
-    // 프로필 저장
+    // 닉네임 저장
     $('#btnSaveProfile').on('click', function () {
         var nickname = $('#nickname').val().trim();
         if (!nickname) { alert('닉네임을 입력하세요.'); return; }
@@ -103,7 +102,12 @@ $(function () {
             url: '/api/users/profile',
             method: 'PUT',
             data: { nickname: nickname },
-            success: function () { alert('저장되었습니다.'); }
+            success: function () {
+                var u = wooji.getUser() || {};
+                u.nickname = nickname;
+                localStorage.setItem('wooji_user', JSON.stringify(u));
+                alert('저장되었습니다.');
+            }
         });
     });
 
@@ -114,10 +118,7 @@ $(function () {
         wooji.ajax({
             url: '/api/users/password',
             method: 'PUT',
-            data: {
-                currentPassword: $('#currentPassword').val(),
-                newPassword: newPassword
-            },
+            data: { currentPassword: $('#currentPassword').val(), newPassword: newPassword },
             success: function () {
                 alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.');
                 wooji.goLogin();
