@@ -13,14 +13,28 @@ public class PageController {
     @Value("${kakao.map.js-key:}")
     private String kakaoMapJsKey;
 
+    private final com.wooji.service.KakaoAuthService kakaoAuthService;
+
+    public PageController(com.wooji.service.KakaoAuthService kakaoAuthService) {
+        this.kakaoAuthService = kakaoAuthService;
+    }
+
     @GetMapping("/")
     public String index() {
         return "redirect:/main";
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("kakaoRestKey", kakaoAuthService.getRestApiKey());
+        model.addAttribute("kakaoRedirectUri", kakaoAuthService.getRedirectUri());
         return "login";
+    }
+
+    /* 카카오 로그인 콜백 (Redirect URI) */
+    @GetMapping("/oauth/kakao")
+    public String kakaoCallback() {
+        return "oauth-kakao";
     }
 
     @GetMapping("/signup")
