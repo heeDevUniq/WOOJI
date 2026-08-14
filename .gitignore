@@ -1,0 +1,22 @@
+# Build
+target/
+*.war
+*.jar
+
+# IDE
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+.vscode/
+
+# Upload files (런타임 업로드 파일)
+upload/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log

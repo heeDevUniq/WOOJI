@@ -30,6 +30,7 @@ public class JwtInterceptor implements HandlerInterceptor {
           + "|^/api/collections/\\d+/places(/nearby)?$"
           + "|^/api/collections/\\d+/comments$"
           + "|^/api/places/\\d+$"
+          + "|^/api/search/places$"
     );
 
     private final JwtUtil jwtUtil;

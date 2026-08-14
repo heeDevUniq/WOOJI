@@ -32,6 +32,27 @@
         ,       c.updated_at
         ,       u.nickname AS owner_nickname
         ,       (SELECT COUNT(*) FROM places p WHERE p.collection_id = c.collection_id) AS place_count
+        ,       (SELECT COUNT(*) FROM collection_members m2 WHERE m2.collection_id = c.collection_id) AS member_count
+        ,       (SELECT GROUP_CONCAT(t.nickname ORDER BY t.sort_no, t.created_at, t.user_id SEPARATOR ',')
+                   FROM (SELECT u2.nickname
+                         ,      m3.user_id
+                         ,      m3.created_at
+                         ,      FIELD(m3.role, 'OWNER', 'EDITOR', 'VIEWER') AS sort_no
+                         FROM   collection_members m3
+                         JOIN   users u2 ON u2.user_id = m3.user_id
+                         WHERE  m3.collection_id = c.collection_id
+                         ORDER BY sort_no, m3.created_at, m3.user_id
+                         LIMIT  4) t) AS member_nicknames
+        ,       (SELECT GROUP_CONCAT(t.profile_image ORDER BY t.sort_no, t.created_at, t.user_id SEPARATOR ',')
+                   FROM (SELECT IFNULL(u2.profile_image, '') AS profile_image
+                         ,      m3.user_id
+                         ,      m3.created_at
+                         ,      FIELD(m3.role, 'OWNER', 'EDITOR', 'VIEWER') AS sort_no
+                         FROM   collection_members m3
+                         JOIN   users u2 ON u2.user_id = m3.user_id
+                         WHERE  m3.collection_id = c.collection_id
+                         ORDER BY sort_no, m3.created_at, m3.user_id
+                         LIMIT  4) t) AS member_images
         FROM    collections c
         JOIN    users u ON u.user_id = c.owner_id
         WHERE   c.collection_id = #{collectionId}
@@ -49,6 +70,27 @@
         ,       u.nickname AS owner_nickname
         ,       m.role
         ,       (SELECT COUNT(*) FROM places p WHERE p.collection_id = c.collection_id) AS place_count
+        ,       (SELECT COUNT(*) FROM collection_members m2 WHERE m2.collection_id = c.collection_id) AS member_count
+        ,       (SELECT GROUP_CONCAT(t.nickname ORDER BY t.sort_no, t.created_at, t.user_id SEPARATOR ',')
+                   FROM (SELECT u2.nickname
+                         ,      m3.user_id
+                         ,      m3.created_at
+                         ,      FIELD(m3.role, 'OWNER', 'EDITOR', 'VIEWER') AS sort_no
+                         FROM   collection_members m3
+                         JOIN   users u2 ON u2.user_id = m3.user_id
+                         WHERE  m3.collection_id = c.collection_id
+                         ORDER BY sort_no, m3.created_at, m3.user_id
+                         LIMIT  4) t) AS member_nicknames
+        ,       (SELECT GROUP_CONCAT(t.profile_image ORDER BY t.sort_no, t.created_at, t.user_id SEPARATOR ',')
+                   FROM (SELECT IFNULL(u2.profile_image, '') AS profile_image
+                         ,      m3.user_id
+                         ,      m3.created_at
+                         ,      FIELD(m3.role, 'OWNER', 'EDITOR', 'VIEWER') AS sort_no
+                         FROM   collection_members m3
+                         JOIN   users u2 ON u2.user_id = m3.user_id
+                         WHERE  m3.collection_id = c.collection_id
+                         ORDER BY sort_no, m3.created_at, m3.user_id
+                         LIMIT  4) t) AS member_images
         ,       (SELECT COUNT(*) FROM collection_favorites f
                   WHERE f.collection_id = c.collection_id AND f.user_id = #{userId}) AS is_favorite
         FROM    collections c
@@ -67,6 +109,27 @@
         ,       c.created_at
         ,       u.nickname AS owner_nickname
         ,       (SELECT COUNT(*) FROM places p WHERE p.collection_id = c.collection_id) AS place_count
+        ,       (SELECT COUNT(*) FROM collection_members m2 WHERE m2.collection_id = c.collection_id) AS member_count
+        ,       (SELECT GROUP_CONCAT(t.nickname ORDER BY t.sort_no, t.created_at, t.user_id SEPARATOR ',')
+                   FROM (SELECT u2.nickname
+                         ,      m3.user_id
+                         ,      m3.created_at
+                         ,      FIELD(m3.role, 'OWNER', 'EDITOR', 'VIEWER') AS sort_no
+                         FROM   collection_members m3
+                         JOIN   users u2 ON u2.user_id = m3.user_id
+                         WHERE  m3.collection_id = c.collection_id
+                         ORDER BY sort_no, m3.created_at, m3.user_id
+                         LIMIT  4) t) AS member_nicknames
+        ,       (SELECT GROUP_CONCAT(t.profile_image ORDER BY t.sort_no, t.created_at, t.user_id SEPARATOR ',')
+                   FROM (SELECT IFNULL(u2.profile_image, '') AS profile_image
+                         ,      m3.user_id
+                         ,      m3.created_at
+                         ,      FIELD(m3.role, 'OWNER', 'EDITOR', 'VIEWER') AS sort_no
+                         FROM   collection_members m3
+                         JOIN   users u2 ON u2.user_id = m3.user_id
+                         WHERE  m3.collection_id = c.collection_id
+                         ORDER BY sort_no, m3.created_at, m3.user_id
+                         LIMIT  4) t) AS member_images
         FROM    collections c
         JOIN    users u ON u.user_id = c.owner_id
         WHERE   c.is_public = 'Y'
