@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wooji.mapper.ShareMapper">
+
+    <insert id="insertInvite" parameterType="map" useGeneratedKeys="true" keyProperty="inviteId">
+        INSERT INTO invites (
+            collection_id
+        ,   invite_code
+        ,   role
+        ,   expires_at
+        ,   created_by
+        ) VALUES (
+            #{collectionId}
+        ,   #{inviteCode}
+        ,   #{role}
+        ,   #{expiresAt}
+        ,   #{createdBy}
+        )
+    </insert>
+
+    <select id="selectInviteByCode" parameterType="string" resultType="map">
+        SELECT  i.*
+        ,       c.title AS collection_title
+        ,       c.emoji
+        ,       u.nickname AS created_by_nickname
+        ,       (SELECT COUNT(*) FROM collection_members m WHERE m.collection_id = i.collection_id) AS member_count
+        ,       (SELECT COUNT(*) FROM places p WHERE p.collection_id = i.collection_id) AS place_count
+        FROM    invites i
+        JOIN    collections c ON c.collection_id = i.collection_id
+        JOIN    users u ON u.user_id = i.created_by
+        WHERE   i.invite_code = #{inviteCode}
+    </select>
+
+    <select id="selectInvites" parameterType="long" resultType="map">
+        SELECT  i.*
+        ,       u.nickname AS created_by_nickname
+        FROM    invites i
+        JOIN    users u ON u.user_id = i.created_by
+        WHERE   i.collection_id = #{collectionId}
+        ORDER BY i.created_at DESC
+    </select>
+
+    <select id="selectInvite" parameterType="long" resultType="map">
+        SELECT  *
+        FROM    invites
+        WHERE   invite_id = #{inviteId}
+    </select>
+
+    <update id="deactivateInvite" parameterType="long">
+        UPDATE  invites
+        SET     active_yn = 'N'
+        WHERE   invite_id = #{inviteId}
+    </update>
+
+    <insert id="insertPendingInvite">
+        INSERT IGNORE INTO pending_invites (
+            invite_id
+        ,   user_id
+        ) VALUES (
+            #{inviteId}
+        ,   #{userId}
+        )
+    </insert>
+
+    <delete id="deletePendingInvite">
+        DELETE  pi
+        FROM    pending_invites pi
+        JOIN    invites i ON i.invite_id = pi.invite_id
+        WHERE   pi.user_id = #{userId}
+        AND     i.collection_id = #{collectionId}
+    </delete>
+
+    <select id="selectPendingInvites" parameterType="long" resultType="map">
+        SELECT  i.invite_id
+        ,       i.invite_code
+        ,       i.role
+        ,       i.collection_id
+        ,       c.title AS collection_title
+        ,       c.emoji
+        ,       u.nickname AS created_by_nickname
+        ,       (SELECT COUNT(*) FROM collection_members m WHERE m.collection_id = i.collection_id) AS member_count
+        FROM    pending_invites pi
+        JOIN    invites i ON i.invite_id = pi.invite_id
+        JOIN    collections c ON c.collection_id = i.collection_id
+        JOIN    users u ON u.user_id = i.created_by
+        WHERE   pi.user_id = #{userId}
+        AND     i.active_yn = 'Y'
+        AND     (i.expires_at IS NULL OR i.expires_at > NOW())
+        AND     NOT EXISTS (SELECT 1 FROM collection_members m2
+                            WHERE m2.collection_id = i.collection_id AND m2.user_id = #{userId})
+        ORDER BY pi.created_at DESC
+    </select>
+
+</mapper>
