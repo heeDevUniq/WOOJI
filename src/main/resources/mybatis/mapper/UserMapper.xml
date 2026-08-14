@@ -27,6 +27,44 @@
         AND     deleted_yn = 'N'
     </select>
 
+    <select id="selectUserByProvider" resultType="map">
+        SELECT  user_id
+        ,       email
+        ,       password
+        ,       nickname
+        ,       profile_image
+        ,       provider
+        ,       provider_id
+        ,       created_at
+        FROM    users
+        WHERE   provider = #{provider}
+        AND     provider_id = #{providerId}
+        AND     deleted_yn = 'N'
+    </select>
+
+    <insert id="insertSocialUser" parameterType="map" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (
+            email
+        ,   nickname
+        ,   profile_image
+        ,   provider
+        ,   provider_id
+        ) VALUES (
+            #{email}
+        ,   #{nickname}
+        ,   #{profileImage}
+        ,   #{provider}
+        ,   #{providerId}
+        )
+    </insert>
+
+    <update id="updateProvider" parameterType="map">
+        UPDATE  users
+        SET     provider = #{provider}
+        ,       provider_id = #{providerId}
+        WHERE   user_id = #{userId}
+    </update>
+
     <select id="selectUserById" parameterType="long" resultType="map">
         SELECT  user_id, email, nickname, profile_image, created_at
         FROM    users

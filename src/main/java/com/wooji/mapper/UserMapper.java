@@ -12,6 +12,13 @@ public interface UserMapper {
 
     Map<String, Object> selectUserByEmail(@Param("email") String email);
 
+    /* 소셜 로그인 */
+    Map<String, Object> selectUserByProvider(@Param("provider") String provider, @Param("providerId") String providerId);
+
+    int insertSocialUser(Map<String, Object> param);
+
+    int updateProvider(Map<String, Object> param);
+
     Map<String, Object> selectUserById(@Param("userId") Long userId);
 
     int countByEmail(@Param("email") String email);

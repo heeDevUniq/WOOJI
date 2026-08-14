@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wooji.common.Res;
+import com.wooji.service.KakaoAuthService;
 import com.wooji.service.UserService;
 
 @RestController
@@ -23,8 +24,11 @@ public class AuthController {
 
     private final UserService userService;
 
-    public AuthController(UserService userService) {
+    private final KakaoAuthService kakaoAuthService;
+
+    public AuthController(UserService userService, KakaoAuthService kakaoAuthService) {
         this.userService = userService;
+        this.kakaoAuthService = kakaoAuthService;
     }
 
     private Long userId(HttpServletRequest request) {
@@ -48,6 +52,16 @@ public class AuthController {
     @PostMapping("/auth/login")
     public Map<String, Object> login(@RequestBody Map<String, Object> param) {
         return Res.ok(userService.login(param));
+    }
+
+    /* 카카오 로그인 - 인가코드로 로그인/가입 후 토큰 발급 */
+    @PostMapping("/auth/kakao")
+    public Map<String, Object> kakaoLogin(@RequestBody Map<String, Object> param) {
+        String code = (String) param.get("code");
+        if (code == null || code.trim().isEmpty()) {
+            return Res.error("인가코드가 없습니다.");
+        }
+        return Res.ok(userService.kakaoLogin(kakaoAuthService.getKakaoUser(code)));
     }
 
     /* Access Token 재발급 */

@@ -42,6 +42,12 @@ kakao:
   search:
     # developers.kakao.com > 내 애플리케이션 > 앱 키 > REST API 키 (키워드 장소검색용)
     rest-api-key: "2cc804b04faf7874944d67f5a061badb"
+  login:
+    # 카카오 로그인용 REST API 키 (앱 키는 위와 동일), 보안 > Client Secret 사용 시 입력
+    rest-api-key: "2cc804b04faf7874944d67f5a061badb"
+    client-secret: "vO7KZZK0e06b19z6sITr96Dq89TVz1g1"
+    # 카카오 로그인 > Redirect URI 에 반드시 동일하게 등록할 것
+    redirect-uri: "http://localhost:8080/oauth/kakao"
 
 logging:
   level:

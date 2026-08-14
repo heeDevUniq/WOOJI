@@ -69,11 +69,60 @@ public class UserService {
         String password = (String) param.get("password");
 
         Map<String, Object> user = userMapper.selectUserByEmail(email);
-        if (user == null || !passwordEncoder.matches(password, (String) user.get("password"))) {
+        if (user == null || user.get("password") == null
+                || !passwordEncoder.matches(password, (String) user.get("password"))) {
             throw new ApiException(401, "이메일 또는 비밀번호가 올바르지 않습니다.");
         }
+        return issueTokens(user);
+    }
 
+    /* 카카오 로그인 - 없으면 가입, 있으면 로그인 */
+    @Transactional
+    public Map<String, Object> kakaoLogin(Map<String, Object> kakaoUser) {
+        String providerId = (String) kakaoUser.get("providerId");
+        String nickname = (String) kakaoUser.get("nickname");
+        String email = (String) kakaoUser.get("email");
+        String profileImage = (String) kakaoUser.get("profileImage");
+
+        if (providerId == null) {
+            throw new ApiException(401, "카카오 사용자 정보를 확인할 수 없습니다.");
+        }
+
+        Map<String, Object> user = userMapper.selectUserByProvider("KAKAO", providerId);
+
+        // 같은 이메일로 가입한 계정이 있으면 카카오 계정을 연결
+        if (user == null && email != null && !email.isEmpty()) {
+            Map<String, Object> byEmail = userMapper.selectUserByEmail(email);
+            if (byEmail != null) {
+                Map<String, Object> linkParam = new HashMap<>();
+                linkParam.put("userId", ((Number) byEmail.get("user_id")).longValue());
+                linkParam.put("provider", "KAKAO");
+                linkParam.put("providerId", providerId);
+                userMapper.updateProvider(linkParam);
+                user = userMapper.selectUserByProvider("KAKAO", providerId);
+            }
+        }
+
+        // 신규 가입
+        if (user == null) {
+            Map<String, Object> param = new HashMap<>();
+            param.put("email", (email != null && !email.isEmpty()) ? email : "kakao_" + providerId + "@wooji.local");
+            param.put("nickname", (nickname != null && !nickname.isEmpty()) ? nickname : "우지친구");
+            param.put("profileImage", profileImage);
+            param.put("provider", "KAKAO");
+            param.put("providerId", providerId);
+            userMapper.insertSocialUser(param);
+            user = userMapper.selectUserByProvider("KAKAO", providerId);
+        }
+
+        return issueTokens(user);
+    }
+
+    /* Access/Refresh Token 발급 + 로그인 응답 구성 */
+    private Map<String, Object> issueTokens(Map<String, Object> user) {
         Long userId = ((Number) user.get("user_id")).longValue();
+        String email = (String) user.get("email");
+
         String accessToken = jwtUtil.createAccessToken(userId, email);
         String refreshToken = jwtUtil.createRefreshToken(userId, email);
 
@@ -143,6 +192,9 @@ public class UserService {
 
         Map<String, Object> me = userMapper.selectUserById(userId);
         Map<String, Object> user = userMapper.selectUserByEmail((String) me.get("email"));
+        if (user.get("password") == null) {
+            throw new ApiException(400, "카카오로 가입한 계정은 비밀번호를 사용하지 않습니다.");
+        }
         if (!passwordEncoder.matches(currentPassword, (String) user.get("password"))) {
             throw new ApiException(400, "현재 비밀번호가 일치하지 않습니다.");
         }
